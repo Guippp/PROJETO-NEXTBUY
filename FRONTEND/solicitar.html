@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solicitar Serviço — NEXTBUY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🐾</div>
+        <span>NEXT<strong>BUY</strong></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="solicitar.html" class="active">Solicitar Serviço</a></li>
+        <li><a href="status.html">Acompanhamento</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="section form-section">
+    <div class="container container-sm">
+      <p class="section-tag">NOVO PEDIDO</p>
+      <h2>Solicitar Serviço</h2>
+      <p class="section-sub">Preencha o formulário abaixo e entraremos em contato.</p>
+
+      <div class="form-card">
+        <div id="mensagem-sucesso" class="alerta alerta-sucesso" style="display:none"></div>
+        <div id="mensagem-erro" class="alerta alerta-erro" style="display:none"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome_cliente">Nome do Cliente <span class="req">*</span></label>
+            <input type="text" id="nome_cliente" placeholder="Seu nome completo"/>
+          </div>
+          <div class="form-group">
+            <label for="nome_pet">Nome do Pet <span class="req">*</span></label>
+            <input type="text" id="nome_pet" placeholder="Nome do seu pet"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo_servico">Tipo de Serviço <span class="req">*</span></label>
+          <select id="tipo_servico">
+            <option value="">Selecione o serviço</option>
+            <option>Banho e Tosa</option>
+            <option>Consulta Veterinária</option>
+            <option>Hospedagem Pet</option>
+            <option>Creche Pet (Day Care)</option>
+            <option>Adestramento</option>
+            <option>Vacinação</option>
+            <option>Transporte Pet</option>
+            <option>Spa Pet</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="descricao">Descrição do Pedido</label>
+          <textarea id="descricao" rows="5" placeholder="Descreva detalhes sobre o serviço desejado..."></textarea>
+        </div>
+
+        <button class="btn btn-green btn-full" id="btn-enviar" onclick="enviarSolicitacao()">
+          📨 &nbsp;Enviar Solicitação
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo logo-light">
+          <div class="logo-icon">🐾</div>
+          <span>NEXT<strong>BUY</strong></span>
+        </a>
+        <p>Cuidando do seu pet com amor, tecnologia e excelência.</p>
+      </div>
+      <div class="footer-col">
+        <h4>LINKS</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="solicitar.html">Solicitar Serviço</a></li>
+          <li><a href="status.html">Acompanhamento</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>CONTATO</h4>
+        <ul>
+          <li>contato@nextbuypet.com.br</li>
+          <li>(11) 99999-0000</li>
+          <li>São Paulo, SP – Brasil</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 NEXTBUY Pet Services. Todos os direitos reservados.</div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3001/api';
+
+    async function enviarSolicitacao() {
+      const btn = document.getElementById('btn-enviar');
+      const sucesso = document.getElementById('mensagem-sucesso');
+      const erro = document.getElementById('mensagem-erro');
+      sucesso.style.display = 'none';
+      erro.style.display = 'none';
+
+      const nome_cliente = document.getElementById('nome_cliente').value.trim();
+      const nome_pet = document.getElementById('nome_pet').value.trim();
+      const tipo_servico = document.getElementById('tipo_servico').value;
+      const descricao = document.getElementById('descricao').value.trim();
+
+      if (!nome_cliente || !nome_pet || !tipo_servico) {
+        erro.textContent = '⚠️ Preencha todos os campos obrigatórios.';
+        erro.style.display = 'block';
+        return;
+      }
+
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API}/solicitacoes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome_cliente, nome_pet, tipo_servico, descricao })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro);
+
+        sucesso.innerHTML = `✅ Solicitação enviada! ID: <strong>${data.id}</strong><br>Guarde este ID para acompanhar seu pedido.`;
+        sucesso.style.display = 'block';
+        document.getElementById('nome_cliente').value = '';
+        document.getElementById('nome_pet').value = '';
+        document.getElementById('tipo_servico').value = '';
+        document.getElementById('descricao').value = '';
+      } catch (e) {
+        erro.textContent = '❌ Erro ao enviar: ' + e.message;
+        erro.style.display = 'block';
+      } finally {
+        btn.textContent = '📨 Enviar Solicitação';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

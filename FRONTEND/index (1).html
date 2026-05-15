@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXTBUY Pet Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── ADMIN OVERLAY ── */
+    .admin-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      display: none; flex-direction: column;
+      background: #f4f6f8;
+    }
+    .admin-overlay.visivel { display: flex; }
+
+    .login-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #0f9b72 0%, #1ab5d4 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .login-box {
+      background: #fff; border-radius: 18px; padding: 48px 40px;
+      width: 100%; max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15); text-align: center;
+    }
+    .login-box .logo-icon { margin: 0 auto 16px; }
+    .login-box h2 { font-size: 1.4rem; margin-bottom: 6px; text-align: center; }
+    .login-box p { color: #6b7280; font-size: 0.9rem; margin-bottom: 28px; }
+    .login-box .form-group { text-align: left; }
+    .login-erro { color: #b91c1c; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+    .admin-header {
+      background: #fff; border-bottom: 1px solid #e5e7eb;
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-badge { background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; letter-spacing: 0.05em; }
+    .btn-sair { background: none; border: 1.5px solid #e5e7eb; color: #374151; padding: 7px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .btn-sair:hover { border-color: #f87171; color: #b91c1c; }
+
+    .admin-body { max-width: 1000px; margin: 0 auto; padding: 40px 2rem; overflow-y: auto; }
+    .admin-top { margin-bottom: 28px; }
+    .admin-top h1 { font-size: 1.5rem; font-weight: 800; }
+    .admin-top p { color: #6b7280; font-size: 0.9rem; margin-top: 2px; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-card .stat-num { font-size: 1.8rem; font-weight: 800; color: #0f1923; }
+    .stat-card .stat-label { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
+
+    .filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+    .filtros input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-family: inherit; font-size: 0.92rem; outline: none; transition: border-color 0.15s; }
+    .filtros input:focus { border-color: var(--teal); }
+    .filtro-btn { padding: 10px 16px; border-radius: 9px; border: 1.5px solid #e5e7eb; background: #fff; color: #374151; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .filtro-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .filtro-btn.ativo { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    .admin-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 14px; border-left: 4px solid transparent; transition: transform 0.15s; }
+    .admin-card:hover { transform: translateY(-1px); }
+    .admin-card.status-aberto { border-left-color: #3b82f6; }
+    .admin-card.status-andamento { border-left-color: #f59e0b; }
+    .admin-card.status-concluido { border-left-color: #22c55e; }
+    .admin-card.status-cancelado { border-left-color: #ef4444; }
+
+    .admin-card-id { font-size: 0.75rem; color: #9ca3af; font-family: monospace; margin-bottom: 4px; }
+    .admin-card-nome { font-size: 1.05rem; font-weight: 700; color: #0f1923; margin-bottom: 4px; }
+    .admin-card-info { display: flex; gap: 20px; font-size: 0.88rem; color: #374151; flex-wrap: wrap; }
+    .admin-card-info strong { color: #0f1923; }
+    .admin-card-desc { font-size: 0.88rem; color: #6b7280; margin-top: 8px; }
+    .admin-card-data { font-size: 0.75rem; color: #9ca3af; margin-top: 6px; }
+    .admin-card-acoes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f3f4f6; }
+
+    .select-status { padding: 7px 12px; border-radius: 8px; border: 1.5px solid #e5e7eb; font-family: inherit; font-size: 0.85rem; color: #374151; background: #f9fafb; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .select-status:focus { border-color: var(--teal); }
+    .btn-salvar { padding: 7px 14px; border-radius: 8px; background: var(--teal); color: #fff; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .btn-salvar:hover { background: var(--teal-dark); }
+    .btn-excluir { padding: 7px 14px; border-radius: 8px; background: #fee2e2; color: #b91c1c; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .btn-excluir:hover { background: #fecaca; }
+    .salvo-ok { font-size: 0.82rem; color: #16a34a; font-weight: 600; display: none; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1100; }
+    .modal-overlay.visivel { display: flex; }
+    .modal-box { background: #fff; border-radius: 16px; padding: 36px 32px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+    .modal-box h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .modal-box p { color: #6b7280; font-size: 0.9rem; margin-bottom: 24px; }
+    .modal-btns { display: flex; gap: 10px; justify-content: center; }
+    .btn-cancelar-modal { padding: 10px 22px; border-radius: 9px; border: 1.5px solid #e5e7eb; background: #fff; color: #374151; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+    .btn-confirmar-excluir { padding: 10px 22px; border-radius: 9px; background: #ef4444; color: #fff; border: none; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+
+    .footer-admin-link { font-size: 0.75rem; color: rgba(255,255,255,0.2); cursor: pointer; transition: color 0.2s; }
+    .footer-admin-link:hover { color: rgba(255,255,255,0.5); }
+  </style>
+</head>
+<body>
+
+  <!-- ══ PAINEL ADMIN (oculto) ══════════════════════════════════ -->
+
+  <!-- Login -->
+  <div class="login-overlay" id="login-overlay" style="display:none">
+    <div class="login-box">
+      <div class="logo-icon" style="width:48px;height:48px;background:var(--teal);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">🐾</div>
+      <h2>Painel Admin</h2>
+      <p>Digite a senha para acessar</p>
+      <div class="form-group">
+        <label for="senha-input">Senha</label>
+        <input type="password" id="senha-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') fazerLogin()"/>
+      </div>
+      <p class="login-erro" id="login-erro">❌ Senha incorreta.</p>
+      <button class="btn btn-green btn-full" style="margin-top:16px" onclick="fazerLogin()">Entrar</button>
+      <button class="btn-sair" style="margin-top:10px;width:100%;justify-content:center" onclick="fecharAdmin()">← Voltar ao site</button>
+    </div>
+  </div>
+
+  <!-- Painel -->
+  <div class="admin-overlay" id="admin-painel">
+    <header class="admin-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="logo-icon">🐾</div>
+        <span style="font-weight:700;font-size:1.1rem">NEXT<strong style="color:var(--teal)">BUY</strong></span>
+        <span class="admin-badge">ADMIN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:0.88rem;color:#6b7280;cursor:pointer" onclick="sair()">← Voltar ao site</span>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+      </div>
+    </header>
+    <div class="admin-body" style="flex:1;overflow-y:auto">
+      <div class="admin-top">
+        <h1>Gerenciar Pedidos</h1>
+        <p>Visualize, filtre e atualize o status das solicitações</p>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="filtros">
+        <input type="text" id="busca-admin" placeholder="🔍  Buscar por nome, pet ou serviço..." oninput="filtrar()"/>
+        <button class="filtro-btn ativo" onclick="setFiltro('todos', this)">Todos</button>
+        <button class="filtro-btn" onclick="setFiltro('Aberto', this)">Aberto</button>
+        <button class="filtro-btn" onclick="setFiltro('Em andamento', this)">Em andamento</button>
+        <button class="filtro-btn" onclick="setFiltro('Concluído', this)">Concluído</button>
+        <button class="filtro-btn" onclick="setFiltro('Cancelado', this)">Cancelado</button>
+      </div>
+      <div id="lista-admin"></div>
+    </div>
+  </div>
+
+  <!-- Modal exclusão -->
+  <div class="modal-overlay" id="modal-excluir">
+    <div class="modal-box">
+      <div style="font-size:32px;margin-bottom:12px">🗑️</div>
+      <h3>Excluir solicitação?</h3>
+      <p>Esta ação não pode ser desfeita.</p>
+      <div class="modal-btns">
+        <button class="btn-cancelar-modal" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-confirmar-excluir" onclick="confirmarExclusao()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SITE NORMAL ════════════════════════════════════════════ -->
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🐾</div>
+        <span>NEXT<strong>BUY</strong></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Início</a></li>
+        <li><a href="solicitar.html">Solicitar Serviço</a></li>
+        <li><a href="status.html">Acompanhamento</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">♡ Cuidado premium para seu pet</span>
+      <h1>O melhor para quem<br><span class="hero-accent">você mais ama</span></h1>
+      <p>A NEXTBUY Pet Services oferece serviços completos para o bem-estar do seu pet. Banho, tosa, veterinário, hospedagem e muito mais — tudo em um só lugar.</p>
+      <div class="hero-btns">
+        <a href="solicitar.html" class="btn btn-white">Solicitar Serviço →</a>
+        <a href="status.html" class="btn btn-outline">Acompanhar Pedido</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section sobre">
+    <div class="container">
+      <p class="section-tag">SOBRE NÓS</p>
+      <h2>Por que escolher a NEXTBUY?</h2>
+      <p class="section-sub">Somos uma empresa apaixonada por animais. Combinamos tecnologia e cuidado para oferecer a melhor experiência para você e seu pet.</p>
+      <div class="cards-grid cards-3">
+        <div class="card">
+          <div class="card-icon teal">🛡️</div>
+          <h3>Profissionais Qualificados</h3>
+          <p>Equipe treinada e certificada para cuidar do seu pet com segurança e carinho.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon teal">🕐</div>
+          <h3>Atendimento Ágil</h3>
+          <p>Agende serviços online e acompanhe o status em tempo real.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon teal">🏆</div>
+          <h3>Qualidade Premium</h3>
+          <p>Produtos e equipamentos de primeira linha para o melhor resultado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section servicos">
+    <div class="container">
+      <p class="section-tag">NOSSOS SERVIÇOS</p>
+      <h2>Tudo que seu pet precisa</h2>
+      <p class="section-sub">Oferecemos uma gama completa de serviços para garantir a saúde, bem-estar e felicidade do seu melhor amigo.</p>
+      <div class="cards-grid cards-4">
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#4F6EF7">✂️</div>
+          <h3>Banho e Tosa</h3>
+          <p>Higiene completa e cortes personalizados</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#E0415A">🩺</div>
+          <h3>Consulta Veterinária</h3>
+          <p>Atendimento clínico com especialistas</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#F57C2B">🏠</div>
+          <h3>Hospedagem Pet</h3>
+          <p>Estadia confortável e segura</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#EAAA08">☀️</div>
+          <h3>Creche Pet (Day Care)</h3>
+          <p>Diversão e socialização durante o dia</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#9B59B6">🐾</div>
+          <h3>Adestramento</h3>
+          <p>Treinamento comportamental profissional</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#1DB954">💉</div>
+          <h3>Vacinação</h3>
+          <p>Vacinas em dia com todo cuidado</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#17B8C5">🚐</div>
+          <h3>Transporte Pet</h3>
+          <p>Leva e traz com segurança</p>
+        </div>
+        <div class="card servico-card">
+          <div class="servico-icon" style="background:#E91E8C">✨</div>
+          <h3>Spa Pet</h3>
+          <p>Relaxamento e bem-estar para seu pet</p>
+        </div>
+      </div>
+      <div class="center-btn">
+        <a href="solicitar.html" class="btn btn-green">Solicitar Agora →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo logo-light">
+          <div class="logo-icon">🐾</div>
+          <span>NEXT<strong>BUY</strong></span>
+        </a>
+        <p>Cuidando do seu pet com amor, tecnologia e excelência. Serviços completos para o bem-estar do seu melhor amigo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>LINKS</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="solicitar.html">Solicitar Serviço</a></li>
+          <li><a href="status.html">Acompanhamento</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>CONTATO</h4>
+        <ul>
+          <li>contato@nextbuypet.com.br</li>
+          <li>(11) 9 3344-5786</li>
+          <li>São Paulo, SP – Brasil</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copy">
+      © 2026 NEXTBUY Pet Services. Todos os direitos reservados.
+      <button onclick="abrirAdmin()" style="margin-left:16px;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">⚙️ Admin</button>
+      <span class="footer-admin-link" onclick="abrirAdmin()" style="margin-left:16px">·</span>
+    </div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3001/api';
+    const SENHA = 'admin123'; // 👈 troque aqui para mudar a senha
+    let todos = [];
+    let filtroAtual = 'todos';
+    let idParaExcluir = null;
+
+    // ── ADMIN: ABRIR/FECHAR ────────────────────────
+    function abrirAdmin() {
+      document.getElementById('login-overlay').style.display = 'flex';
+    }
+    function fecharAdmin() {
+      document.getElementById('login-overlay').style.display = 'none';
+    }
+    function sair() {
+      document.getElementById('admin-painel').classList.remove('visivel');
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('senha-input').value = '';
+    }
+
+    // ── LOGIN ──────────────────────────────────────
+    function fazerLogin() {
+      const senha = document.getElementById('senha-input').value;
+      const erro = document.getElementById('login-erro');
+      if (senha === SENHA) {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('admin-painel').classList.add('visivel');
+        carregarPedidos();
+      } else {
+        erro.style.display = 'block';
+        document.getElementById('senha-input').value = '';
+        document.getElementById('senha-input').focus();
+      }
+    }
+
+    // ── DADOS ──────────────────────────────────────
+    async function carregarPedidos() {
+      try {
+        const res = await fetch(`${API}/solicitacoes`);
+        todos = await res.json();
+        renderStats();
+        filtrar();
+      } catch (e) {
+        document.getElementById('lista-admin').innerHTML = '<p class="vazio">⚠️ Não foi possível conectar ao servidor.</p>';
+      }
+    }
+
+    function renderStats() {
+      const total = todos.length;
+      const abertos = todos.filter(s => s.status === 'Aberto').length;
+      const andamento = todos.filter(s => s.status === 'Em andamento').length;
+      const concluidos = todos.filter(s => s.status === 'Concluído').length;
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total de pedidos</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${abertos}</div><div class="stat-label">Em aberto</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#f59e0b">${andamento}</div><div class="stat-label">Em andamento</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#22c55e">${concluidos}</div><div class="stat-label">Concluídos</div></div>
+      `;
+    }
+
+    function statusClasse(s) { return {Aberto:'status-aberto','Em andamento':'status-andamento','Concluído':'status-concluido',Cancelado:'status-cancelado'}[s]||''; }
+    function badgeClasse(s) { return {Aberto:'badge-aberto','Em andamento':'badge-andamento','Concluído':'badge-concluido',Cancelado:'badge-cancelado'}[s]||''; }
+
+    function filtrar() {
+      const busca = document.getElementById('busca-admin').value.toLowerCase();
+      let lista = filtroAtual === 'todos' ? todos : todos.filter(s => s.status === filtroAtual);
+      if (busca) lista = lista.filter(s =>
+        s.nome_cliente.toLowerCase().includes(busca) ||
+        s.nome_pet.toLowerCase().includes(busca) ||
+        s.tipo_servico.toLowerCase().includes(busca)
+      );
+      renderLista(lista);
+    }
+
+    function setFiltro(valor, btn) {
+      filtroAtual = valor;
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      filtrar();
+    }
+
+    function renderLista(lista) {
+      const el = document.getElementById('lista-admin');
+      if (!lista.length) { el.innerHTML = '<p class="vazio">Nenhum pedido encontrado.</p>'; return; }
+      el.innerHTML = lista.map(s => `
+        <div class="admin-card ${statusClasse(s.status)}">
+          <div class="admin-card-id">#${s.id}</div>
+          <div class="admin-card-nome">${s.nome_cliente}</div>
+          <div class="admin-card-info">
+            <span>Pet: <strong>${s.nome_pet}</strong></span>
+            <span>Serviço: <strong>${s.tipo_servico}</strong></span>
+            <span><span class="badge ${badgeClasse(s.status)}">${s.status}</span></span>
+          </div>
+          ${s.descricao ? `<div class="admin-card-desc">${s.descricao}</div>` : ''}
+          <div class="admin-card-data">${new Date(s.criado_em).toLocaleString('pt-BR')}</div>
+          <div class="admin-card-acoes">
+            <select class="select-status" id="sel-${s.id}">
+              <option ${s.status==='Aberto'?'selected':''}>Aberto</option>
+              <option ${s.status==='Em andamento'?'selected':''}>Em andamento</option>
+              <option ${s.status==='Concluído'?'selected':''}>Concluído</option>
+              <option ${s.status==='Cancelado'?'selected':''}>Cancelado</option>
+            </select>
+            <button class="btn-salvar" onclick="salvarStatus('${s.id}')">Salvar</button>
+            <button class="btn-excluir" onclick="abrirModal('${s.id}')">Excluir</button>
+            <span class="salvo-ok" id="ok-${s.id}">✓ Salvo!</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function salvarStatus(id) {
+      const novoStatus = document.getElementById(`sel-${id}`).value;
+      try {
+        await fetch(`${API}/solicitacoes/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: novoStatus })
+        });
+        const ok = document.getElementById(`ok-${id}`);
+        ok.style.display = 'inline';
+        setTimeout(() => ok.style.display = 'none', 2000);
+        await carregarPedidos();
+      } catch (e) { alert('Erro ao salvar status.'); }
+    }
+
+    function abrirModal(id) {
+      idParaExcluir = id;
+      document.getElementById('modal-excluir').classList.add('visivel');
+    }
+    function fecharModal() {
+      idParaExcluir = null;
+      document.getElementById('modal-excluir').classList.remove('visivel');
+    }
+    async function confirmarExclusao() {
+      if (!idParaExcluir) return;
+      try {
+        await fetch(`${API}/solicitacoes/${idParaExcluir}`, { method: 'DELETE' });
+        fecharModal();
+        await carregarPedidos();
+      } catch (e) { alert('Erro ao excluir.'); }
+    }
+  </script>
+
+</body>
+</html>

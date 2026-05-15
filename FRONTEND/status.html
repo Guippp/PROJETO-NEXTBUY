@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acompanhamento — NEXTBUY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🐾</div>
+        <span>NEXT<strong>BUY</strong></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="solicitar.html">Solicitar Serviço</a></li>
+        <li><a href="status.html" class="active">Acompanhamento</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="section form-section">
+    <div class="container container-md">
+      <p class="section-tag">ACOMPANHAMENTO</p>
+      <h2>Status das Solicitações</h2>
+      <p class="section-sub">Veja o andamento de todas as solicitações cadastradas.</p>
+
+      <div class="busca-wrapper">
+        <span class="busca-icon">🔍</span>
+        <input type="text" id="busca" placeholder="Buscar por nome, pet, serviço ou ID..." oninput="buscar(this.value)"/>
+      </div>
+
+      <div id="lista-solicitacoes" class="lista-cards">
+        <p class="loading">Carregando solicitações...</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo logo-light">
+          <div class="logo-icon">🐾</div>
+          <span>NEXT<strong>BUY</strong></span>
+        </a>
+        <p>Cuidando do seu pet com amor, tecnologia e excelência.</p>
+      </div>
+      <div class="footer-col">
+        <h4>LINKS</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="solicitar.html">Solicitar Serviço</a></li>
+          <li><a href="status.html">Acompanhamento</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>CONTATO</h4>
+        <ul>
+          <li>contato@nextbuypet.com.br</li>
+          <li>(11) 99999-0000</li>
+          <li>São Paulo, SP – Brasil</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 NEXTBUY Pet Services. Todos os direitos reservados.</div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3001/api';
+    let debounceTimer;
+
+    function statusClass(status) {
+      const map = {
+        'Aberto': 'badge-aberto',
+        'Em andamento': 'badge-andamento',
+        'Concluído': 'badge-concluido',
+        'Cancelado': 'badge-cancelado'
+      };
+      return map[status] || 'badge-aberto';
+    }
+
+    function renderCards(lista) {
+      const el = document.getElementById('lista-solicitacoes');
+      if (!lista.length) {
+        el.innerHTML = '<p class="vazio">Nenhuma solicitação encontrada.</p>';
+        return;
+      }
+      el.innerHTML = lista.map(s => `
+        <div class="solicitacao-card">
+          <div class="card-top">
+            <span class="card-id">#${s.id.substring(0, 18)}</span>
+            <span class="badge ${statusClass(s.status)}">${s.status}</span>
+          </div>
+          <h3 class="card-nome">${s.nome_cliente}</h3>
+          <div class="card-info">
+            <span>Pet: <strong>${s.nome_pet}</strong></span>
+            <span>Serviço: <strong>${s.tipo_servico}</strong></span>
+          </div>
+          ${s.descricao ? `<p class="card-desc">${s.descricao}</p>` : ''}
+          <p class="card-data">${new Date(s.criado_em).toLocaleString('pt-BR')}</p>
+        </div>
+      `).join('');
+    }
+
+    async function carregar(busca = '') {
+      try {
+        const url = busca ? `${API}/solicitacoes?busca=${encodeURIComponent(busca)}` : `${API}/solicitacoes`;
+        const res = await fetch(url);
+        const data = await res.json();
+        renderCards(data);
+      } catch (e) {
+        document.getElementById('lista-solicitacoes').innerHTML =
+          '<p class="vazio">⚠️ Não foi possível conectar ao servidor. Verifique se o backend está rodando.</p>';
+      }
+    }
+
+    function buscar(valor) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => carregar(valor), 300);
+    }
+
+    carregar();
+  </script>
+</body>
+</html>
