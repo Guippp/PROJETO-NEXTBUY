@@ -3,7 +3,7 @@ from flask_cors import CORS
 from models import db, Solicitacao
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}}) # Adicione ou mude para essa linha exata!
 
 # Configuração do Banco de Dados SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -36,18 +36,36 @@ def criar_solicitacao():
 
 @app.route('/api/solicitacoes', methods=['GET'])
 def listar_solicitacoes():
-    busca = request.args.get('busca', '').lower()
-    
-    query = Solicitacao.query
-    if busca:
-        query = query.filter(
-            (Solicitacao.nome_cliente.ilike(f'%{busca}%')) |
-            (Solicitacao.nome_pet.ilike(f'%{busca}%')) |
-            (Solicitacao.tipo_servico.ilike(f'%{busca}%'))
-        )
-    
-    lista = query.order_by(Solicitacao.criado_em.desc()).all()
-    return jsonify([s.to_dict() for s in lista]), 200
+    try:
+        busca = request.args.get('busca', '').lower()
+
+        query = Solicitacao.query
+        if busca:
+            query = query.filter(
+                (Solicitacao.nome_cliente.ilike(f'%{busca}%')) |
+                (Solicitacao.nome_pet.ilike(f'%{busca}%')) |
+                (Solicitacao.tipo_servico.ilike(f'%{busca}%'))
+            )
+        
+        # Pega a lista de dados do banco
+        lista = query.all()
+        
+        # Faz a conversão manual campo por campo (Sem depender de to_dict!)
+        dados_convertidos = []
+        for s in lista:
+            dados_convertidos.append({
+                "id": s.id,
+                "nome_cliente": s.nome_cliente,
+                "nome_pet": s.nome_pet,
+                "tipo_servico": s.tipo_servico,
+                "status": s.status if s.status else "Aberto"
+            })
+        
+        # Devolve os dados certinhos pro seu JavaScript
+        return jsonify(dados_convertidos), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
 
 @app.route('/api/solicitacoes/<int:id>/status', methods=['PATCH'])
 def atualizar_status(id):

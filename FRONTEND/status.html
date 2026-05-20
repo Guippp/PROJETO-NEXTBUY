@@ -71,60 +71,62 @@
   </footer>
 
   <script>
-    const API = 'http://localhost:3001/api';
-    let debounceTimer;
+    // 1. FUNÇÃO QUE FAZ A MÁGICA DE BUSCAR NO FLASK
+    async function buscar(termoBusca = '') {
+        try {
+            let url = 'http://localhost:3001/api/solicitacoes';
+            if (termoBusca) {
+                url += `?busca=${encodeURIComponent(termoBusca)}`;
+            }
 
-    function statusClass(status) {
-      const map = {
-        'Aberto': 'badge-aberto',
-        'Em andamento': 'badge-andamento',
-        'Concluído': 'badge-concluido',
-        'Cancelado': 'badge-cancelado'
-      };
-      return map[status] || 'badge-aberto';
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Erro ao buscar dados do servidor');
+            }
+            
+            const solicitacoes = await response.json();
+            console.log("Dados recebidos do Flask:", solicitacoes);
+
+            // PEGA O ID EXATO DA SUA LINHA 38: 'lista-solicitacoes'
+            const container = document.getElementById('lista-solicitacoes');
+            
+            if (!container) {
+                console.error('Div lista-solicitacoes não encontrada.');
+                return;
+            }
+
+            // Limpa o texto "Carregando solicitações..."
+            container.innerHTML = ''; 
+
+            if (solicitacoes.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: #333; padding: 20px;">Nenhuma solicitação encontrada.</p>';
+                return;
+            }
+
+            // Renderiza os cards dentro da sua div
+            solicitacoes.forEach(solicitacao => {
+                const card = document.createElement('div');
+                card.className = 'status-card'; // Usa a sua classe 'status-card' ou 'lista-cards'
+                card.style = "padding: 20px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; color: #333; text-align: left;";
+                
+                card.innerHTML = `
+                    <p><strong>Cliente:</strong> ${solicitacao.nome_cliente}</p>
+                    <p><strong>Pet:</strong> ${solicitacao.nome_pet}</p>
+                    <p><strong>Serviço:</strong> ${solicitacao.tipo_servico}</p>
+                    <p><strong>Status:</strong> <span style="font-weight:bold; color:#0f1923;">${solicitacao.status}</span></p>
+                `;
+                container.appendChild(card);
+            });
+
+        } catch (error) {
+            console.error('Erro de conexão:', error);
+        }
     }
 
-    function renderCards(lista) {
-      const el = document.getElementById('lista-solicitacoes');
-      if (!lista.length) {
-        el.innerHTML = '<p class="vazio">Nenhuma solicitação encontrada.</p>';
-        return;
-      }
-      el.innerHTML = lista.map(s => `
-        <div class="solicitacao-card">
-          <div class="card-top">
-            <span class="card-id">#${s.id.substring(0, 18)}</span>
-            <span class="badge ${statusClass(s.status)}">${s.status}</span>
-          </div>
-          <h3 class="card-nome">${s.nome_cliente}</h3>
-          <div class="card-info">
-            <span>Pet: <strong>${s.nome_pet}</strong></span>
-            <span>Serviço: <strong>${s.tipo_servico}</strong></span>
-          </div>
-          ${s.descricao ? `<p class="card-desc">${s.descricao}</p>` : ''}
-          <p class="card-data">${new Date(s.criado_em).toLocaleString('pt-BR')}</p>
-        </div>
-      `).join('');
-    }
-
-    async function carregar(busca = '') {
-      try {
-        const url = busca ? `${API}/solicitacoes?busca=${encodeURIComponent(busca)}` : `${API}/solicitacoes`;
-        const res = await fetch(url);
-        const data = await res.json();
-        renderCards(data);
-      } catch (e) {
-        document.getElementById('lista-solicitacoes').innerHTML =
-          '<p class="vazio">⚠️ Não foi possível conectar ao servidor. Verifique se o backend está rodando.</p>';
-      }
-    }
-
-    function buscar(valor) {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => carregar(valor), 300);
-    }
-
-    carregar();
-  </script>
+    // 2. DISPARA A BUSCA ASSIM QUE A PÁGINA CARREGAR
+    document.addEventListener('DOMContentLoaded', () => {
+        buscar(''); // Carrega tudo no início
+    });
+</script>
 </body>
 </html>

@@ -1,12 +1,103 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Solicitar Serviço — NEXTBUY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Estilos Específicos para a Página de Solicitação */
+    body {
+      background-color: var(--gray-bg); /* Fundo sutil para destacar o formulário */
+    }
+
+    /* O CONTAINER DO FORMULÁRIO COM O GRADIENTE FORTE NO TOPO */
+    .form-container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden; /* Garante que o topo fique arredondado */
+      border: 1px solid #eef2f6;
+    }
+
+    /* TOPO COLORIDO DO CARTÃO */
+    .form-header {
+      background: var(--gradiente-vibrante); /* Usa a cor forte da index */
+      padding: 40px 40px 30px;
+      text-align: center;
+      color: #fff; /* Texto branco sobre fundo forte */
+    }
+
+    .form-header h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .form-header .sub-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+    }
+
+    /* ÁREA DO FORMULÁRIO (BRANCA) */
+    .form-content {
+      padding: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--navy);
+      font-size: 0.9rem;
+    }
+
+    /* Estilizando os inputs com a paleta */
+    .input-padrao {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1.5px solid #e2e8f0;
+      font-family: inherit;
+      transition: 0.3s;
+      outline: none;
+    }
+
+    .input-padrao:focus {
+      border-color: #0f9b72; /* Cor forte no foco */
+      box-shadow: 0 0 0 4px rgba(15, 155, 114, 0.1);
+    }
+
+    /* O BOTÃO ENVIAR COM O GRADIENTE FORTE */
+    .btn-solicitar {
+      width: 100%;
+      padding: 16px;
+      background: var(--gradiente-vibrante); /* Cor forte no botão */
+      color: #0f9b72;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-solicitar:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
 
@@ -24,130 +115,114 @@
     </div>
   </nav>
 
-  <section class="section form-section">
-    <div class="container container-sm">
-      <p class="section-tag">NOVO PEDIDO</p>
-      <h2>Solicitar Serviço</h2>
-      <p class="section-sub">Preencha o formulário abaixo e entraremos em contato.</p>
+  <main class="container">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Solicitar Serviço</h2>
+        <p class="sub-text">Agendamento rápido e fácil para o seu pet.</p>
+      </div>
 
-      <div class="form-card">
-        <div id="mensagem-sucesso" class="alerta alerta-sucesso" style="display:none"></div>
-        <div id="mensagem-erro" class="alerta alerta-erro" style="display:none"></div>
-
-        <div class="form-row">
+      <div class="form-content">
+        <form id="form-solicitacao">
           <div class="form-group">
-            <label for="nome_cliente">Nome do Cliente <span class="req">*</span></label>
-            <input type="text" id="nome_cliente" placeholder="Seu nome completo"/>
+            <label for="nomeCliente">Nome do Proprietário</label>
+            <input type="text" id="nomeCliente" class="input-padrao" placeholder="Ex: João Silva" required>
           </div>
+
           <div class="form-group">
-            <label for="nome_pet">Nome do Pet <span class="req">*</span></label>
-            <input type="text" id="nome_pet" placeholder="Nome do seu pet"/>
+            <label for="nomePet">Nome do Pet</label>
+            <input type="text" id="nomePet" class="input-padrao" placeholder="Como se chama seu amigo?" required>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="tipo_servico">Tipo de Serviço <span class="req">*</span></label>
-          <select id="tipo_servico">
-            <option value="">Selecione o serviço</option>
-            <option>Banho e Tosa</option>
-            <option>Consulta Veterinária</option>
-            <option>Hospedagem Pet</option>
-            <option>Creche Pet (Day Care)</option>
-            <option>Adestramento</option>
-            <option>Vacinação</option>
-            <option>Transporte Pet</option>
-            <option>Spa Pet</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="tipoServico">Tipo de Serviço</label>
+            <select id="tipoServico" class="input-padrao" required>
+              <option value="">Selecione o serviço</option>
+              <option value="Banho e Tosa">Banho e Tosa</option>
+              <option value="Consulta Veterinária">Consulta Veterinária</option>
+              <option value="Hospedagem">Hospedagem Pet</option>
+              <option value="Adestramento">Adestramento</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label for="descricao">Descrição do Pedido</label>
-          <textarea id="descricao" rows="5" placeholder="Descreva detalhes sobre o serviço desejado..."></textarea>
-        </div>
+           <div class="form-group" style="margin-top: 15px;">
+        <label for="data">Data do Agendamento</label>
+        <input type="date" id="data" class="input-padrao">
+      </div>
 
-        <button class="btn btn-green btn-full" id="btn-enviar" onclick="enviarSolicitacao()">
-          📨 &nbsp;Enviar Solicitação
-        </button>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="hora">Horário Preferido</label>
+        <input type="time" id="hora" class="input-padrao">
+      </div>
+
+          <div class="form-group">
+            <label for="descricao">Observações Adicionais</label>
+            <textarea id="descricao" class="input-padrao" style="min-height: 100px; resize: none;" placeholder="Conte-nos mais sobre o que o seu pet precisa..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-solicitar">Confirmar Solicitação</button>
+        </form>
       </div>
     </div>
-  </section>
+  </main>
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-brand">
-        <a href="index.html" class="logo logo-light">
-          <div class="logo-icon">🐾</div>
-          <span>NEXT<strong>BUY</strong></span>
-        </a>
-        <p>Cuidando do seu pet com amor, tecnologia e excelência.</p>
+      <div class="footer-col">
+        <div class="logo" style="color:#fff">🐾 NEXTBUY</div>
+        <p style="margin-top:20px; font-size: 0.9rem; opacity: 0.7;">Tecnologia a serviço do bem-estar animal.</p>
       </div>
       <div class="footer-col">
-        <h4>LINKS</h4>
+        <h4>Navegação</h4>
         <ul>
           <li><a href="index.html">Início</a></li>
-          <li><a href="solicitar.html">Solicitar Serviço</a></li>
-          <li><a href="status.html">Acompanhamento</a></li>
+          <li><a href="solicitar.html">Solicitar</a></li>
+          <li><a href="status.html">Status</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>CONTATO</h4>
-        <ul>
-          <li>contato@nextbuypet.com.br</li>
-          <li>(11) 99999-0000</li>
-          <li>São Paulo, SP – Brasil</li>
-        </ul>
+        <h4>Contato</h4>
+        <p style="font-size: 0.85rem; opacity: 0.7;">contato@nextbuypet.com.br</p>
+        <p style="font-size: 0.85rem; opacity: 0.7;">São Paulo, SP</p>
       </div>
     </div>
-    <div class="footer-copy">© 2026 NEXTBUY Pet Services. Todos os direitos reservados.</div>
   </footer>
 
   <script>
-    const API = 'http://localhost:3001/api';
+        const form = document.getElementById('form-solicitacao') || document.querySelector('form');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Impede a página de atualizar
 
-    async function enviarSolicitacao() {
-      const btn = document.getElementById('btn-enviar');
-      const sucesso = document.getElementById('mensagem-sucesso');
-      const erro = document.getElementById('mensagem-erro');
-      sucesso.style.display = 'none';
-      erro.style.display = 'none';
+            // Pega os dados usando os IDs corretos que estão no seu HTML
+            const dados = {
+                nome_cliente: document.getElementById('nomeCliente')?.value || document.getElementById('proprietario')?.value,
+                nome_pet: document.getElementById('nomePet')?.value || document.getElementById('pet')?.value,
+                tipo_servico: document.getElementById('tipoServico')?.value || document.getElementById('servico')?.value,
+                descricao: document.getElementById('descricao')?.value || "Sem observações",
+                status: 'Aberto'
+            };
 
-      const nome_cliente = document.getElementById('nome_cliente').value.trim();
-      const nome_pet = document.getElementById('nome_pet').value.trim();
-      const tipo_servico = document.getElementById('tipo_servico').value;
-      const descricao = document.getElementById('descricao').value.trim();
+            try {
+                // ATENÇÃO À PORTA: O seu Flask está rodando na porta 3001!
+                const resposta = await fetch('http://localhost:3001/api/solicitacoes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
 
-      if (!nome_cliente || !nome_pet || !tipo_servico) {
-        erro.textContent = '⚠️ Preencha todos os campos obrigatórios.';
-        erro.style.display = 'block';
-        return;
-      }
-
-      btn.textContent = 'Enviando...';
-      btn.disabled = true;
-
-      try {
-        const res = await fetch(`${API}/solicitacoes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome_cliente, nome_pet, tipo_servico, descricao })
+                if (resposta.ok) {
+                    alert('Solicitação enviada com sucesso! Acompanhe no painel de status.');
+                    form.reset();
+                    window.location.href = 'status.html';
+                } else {
+                    alert('Erro ao processar solicitação no servidor.');
+                }
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro de conexão: Certifique-se de que o backend está rodando.');
+            }
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro);
-
-        sucesso.innerHTML = `✅ Solicitação enviada! ID: <strong>${data.id}</strong><br>Guarde este ID para acompanhar seu pedido.`;
-        sucesso.style.display = 'block';
-        document.getElementById('nome_cliente').value = '';
-        document.getElementById('nome_pet').value = '';
-        document.getElementById('tipo_servico').value = '';
-        document.getElementById('descricao').value = '';
-      } catch (e) {
-        erro.textContent = '❌ Erro ao enviar: ' + e.message;
-        erro.style.display = 'block';
-      } finally {
-        btn.textContent = '📨 Enviar Solicitação';
-        btn.disabled = false;
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>
