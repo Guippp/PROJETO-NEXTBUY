@@ -6,7 +6,14 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}}) # Adicione ou mude para essa linha exata!
 
 # Configuração do Banco de Dados SQLite
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+import os
+
+# Se estiver na nuvem (Render), usa o banco PostgreSQL de lá. Se estiver no seu PC, mantém o seu SQLite local!
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
