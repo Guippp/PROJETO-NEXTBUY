@@ -74,7 +74,7 @@
     // 1. FUNÇÃO QUE FAZ A MÁGICA DE BUSCAR NO FLASK
     async function buscar(termoBusca = '') {
         try {
-            let url = 'http://localhost:3001/api/solicitacoes';
+            let url = 'https://projeto-nextbuy.onrender.com/api/solicitacoes';
             if (termoBusca) {
                 url += `?busca=${encodeURIComponent(termoBusca)}`;
             }
