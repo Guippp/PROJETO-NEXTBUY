@@ -204,24 +204,26 @@
             };
 
             try {
-                // ATENÇÃO À PORTA: O seu Flask está rodando na porta 3001!
-                const response = await fetch('https://projeto-nextbuy.onrender.com/api/solicitacoes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dados)
-                });
+              const response = await fetch('https://projeto-nextbuy.onrender.com/api/solicitacoes', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dadosDoFormulario) // Use a variável que você já tem aí para os dados
+    });
 
-                if (resposta.ok) {
-                    alert('Solicitação enviada com sucesso! Acompanhe no painel de status.');
-                    form.reset();
-                    window.location.href = 'status.html';
-                } else {
-                    alert('Erro ao processar solicitação no servidor.');
-                }
-            } catch (erro) {
-                console.error(erro);
-                alert('Erro de conexão: Certifique-se de que o backend está rodando.');
-            }
+    // Se o servidor respondeu com sucesso (status entre 200 e 299)
+    if (response.ok) {
+        alert("Solicitação enviada com sucesso!");
+        window.location.href = "status.html"; // Já joga ela direto para a página de acompanhamento
+    } else {
+        alert("Erro ao enviar: " + response.statusText);
+    }
+} catch (error) {
+    console.error("Erro detalhado:", error);
+    // Só vai dar esse erro se a internet cair ou o Render estiver desligado de verdade
+    alert("Erro de conexão: Certifique-se de que o backend está rodando.");
+}
         });
     </script>
 </body>
